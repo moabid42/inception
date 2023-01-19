@@ -1,0 +1,80 @@
+version: '3.7'
+
+services:
+
+  mariadb:
+    build: mariadb
+    image: mariadb:mine
+    container_name: mariadb
+    init: true
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_WP_NAME
+    networks:
+      - inception
+    expose:
+      - "3306"
+    volumes:
+      - mariadb:/var/lib/mysql
+    restart: always
+
+  nginx:
+    build: nginx
+    image: nginx:mine
+    container_name: nginx
+    init: true
+    environment:
+      - DOMAIN_NAME
+    depends_on:
+      - wordpress
+    networks:
+      - inception
+    ports:
+      - "443:443"
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+
+  wordpress:
+    build: wordpress
+    image: wordpress:mine
+    container_name: wordpress
+    init: true
+    environment:
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_WP_NAME
+    depends_on:
+      - mariadb
+    networks:
+      - inception
+    expose:
+      - "9000"
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+
+networks:
+
+  inception:
+    driver: bridge
+
+volumes:
+
+  mariadb:
+    name: mariadb_volume
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: /home/$USER/data/mariadb
+
+  wordpress:
+    name: wordpress_volume
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/$USER/data/wordpress
