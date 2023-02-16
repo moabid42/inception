@@ -32,5 +32,5 @@ Feel free to use this project as a template for your own WordPress website or co
 - Stop and remove containers, remove images, volumes and network:
 
 	```sh
-	$ make clean
+	$ make fclean
 	```
